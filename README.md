@@ -3,7 +3,7 @@ Experimental Dynamic Distortion Plugin
 
 MIT License
 
-Copyright (c) 2018 Chris Johnson
+Copyright (c) 2023 Aaron Walker
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
