@@ -92,6 +92,7 @@ private:
     float rms_low = 0;
     float low = 0;
     float threshhold;
+    float side_scale_factor = 2.f;
      
     std::atomic<float>* th = treeState.getRawParameterValue("threshhold");
     std::atomic<float>* rms_time = treeState.getRawParameterValue("time");
@@ -99,6 +100,7 @@ private:
     std::atomic<float>* intensity = treeState.getRawParameterValue("range");
     std::atomic<float>* dynamic = treeState.getRawParameterValue("dynamics");
     std::atomic<float>* clip = treeState.getRawParameterValue("clip");
+    std::atomic<float>* midside = treeState.getRawParameterValue("midside");
     std::atomic<float>* aggressive = treeState.getRawParameterValue("aggressive");
     std::atomic<float>* curve = treeState.getRawParameterValue("curve");
     std::atomic<float>* inverse = treeState.getRawParameterValue("inverse");
@@ -106,13 +108,31 @@ private:
     int   rms_size = floor((*rms_time / 1000) * srate);
     float in_gain = Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("input_gain")));
     float out_gain = Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("output_gain")));
+    float boost_gain = Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("boost_gain")));
     float sat_spl0;
     float sat_spl1;
     float spl0;
     float spl1;
+    float mid;
+    float side;
     float ratio;
     float C;
     float K;
+
+
+    float hardness = 0.7390851332151606; // x == cos(x)
+    float softness = 1.0 - hardness;
+    float refclip = 0.9549925859; // -0.2dB
+
+    float inputSampleL = 0.f;
+    float lastSampleL = 0.f;
+    bool wasPosClipL = false;
+    bool wasNegClipL = false;
+
+    float inputSampleR = 0.f;
+    float lastSampleR = 0.f;
+    bool wasPosClipR = false;
+    bool wasNegClipR = false;
 
     String style;
 

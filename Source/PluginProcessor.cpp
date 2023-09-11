@@ -32,19 +32,21 @@ juce::AudioProcessorValueTreeState::ParameterLayout DystAudioProcessor::createPa
 {
     juce::AudioProcessorValueTreeState::ParameterLayout params;
 
-    params.add(std::make_unique<juce::AudioParameterInt>("time", "Time", 60,1000,1));
+    params.add(std::make_unique<juce::AudioParameterInt>("time", "Time", 50,500,60));
 
-    params.add(std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.1f, 6.f, 0.5f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.1f, 6.f, 1.f));
     params.add(std::make_unique<juce::AudioParameterFloat>("range", "Range", 0.1f, 6.f, 1.f));
     params.add(std::make_unique<juce::AudioParameterFloat>("curve", "Curve", 0.f, 1.f, 0.01f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("input_gain", "Input", -20.f, 6.f, 0.f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("output_gain", "Output", -20.f, 6.f, 0.f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("input_gain", "Input", -20.f, 12.f, 0.f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("output_gain", "Output", -20.f, 12.f, 0.f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("boost_gain", "Boost", 0.f, 12.f, 0.f));
     params.add(std::make_unique<juce::AudioParameterFloat>("threshhold", "Threshhold", -20.f, 0.f, 0.1f));
 
-    params.add(std::make_unique<juce::AudioParameterBool>("dynamics", "Dynamics", false));
+    params.add(std::make_unique<juce::AudioParameterBool>("dynamics", "Dynamics", true));
     params.add(std::make_unique<juce::AudioParameterBool>("aggressive", "Aggressive", false));
     params.add(std::make_unique<juce::AudioParameterBool>("inverse", "Inverse", false)); //Direct or Inverse
     params.add(std::make_unique<juce::AudioParameterBool>("clip", "Clip", false)); 
+    params.add(std::make_unique<juce::AudioParameterBool>("midside", "MidSide", false)); 
 
     //the strings are actually added manually in editor constructor
     params.add(std::make_unique<juce::AudioParameterChoice>("style", "Style", juce::Array<juce::String>{ "Sigmoid", "ArcTan", "HyperTan", "Arraya" }, 0));
@@ -200,6 +202,7 @@ void DystAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::Mi
         style = treeState.getParameter("style")->getCurrentValueAsText();
         out_gain = Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("output_gain")));
         in_gain = Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("input_gain")));
+        boost_gain = Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("boost_gain")));
         C = Lerp(*drive * .5f, (*drive + *intensity) - *drive / 2, *curve);
         rms_size = floor((*rms_time / 1000) * srate);
         K = *drive;
@@ -215,12 +218,21 @@ void DystAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::Mi
         spl0 = left_channelData[i];
         spl1 = right_channelData[i];
 
+        if (*midside)
+        {
+            mid = (spl0 + spl1) / 2;
+            side = (spl0 - spl1) / 2;
+            //side *= side_scale_factor;
+            spl0 = mid;
+            spl1 = side;
+        }
+
         // INPUT GAIN
         spl0 *= in_gain;
         spl1 *= in_gain;
 
         //  CALCULATE RMS  
-        squareSample = jmax(spl0, spl1) * jmax(spl0,spl1);
+        squareSample = jmax(abs(spl0), abs(spl1)) * jmax(abs(spl0),abs(spl1));
         squareSum += squareSample;
         rmsList[rms_counter % rms_size] = squareSample;
 
@@ -310,6 +322,11 @@ void DystAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::Mi
         {
             sat_spl0 = (3 * spl0 / 2) * (1 - (square(spl0) / 2));
             sat_spl1 = (3 * spl1 / 2) * (1 - (square(spl1) / 2));
+
+            //*************Double Saturate?***********
+            sat_spl0 = (2 / (1 + exp(-K * sat_spl0))) - 1;
+            sat_spl1 = (2 / (1 + exp(-K * sat_spl1))) - 1;
+            //*****************************************
         }
 
         // CHOOSE INTERPOLATION METHOD
@@ -336,26 +353,101 @@ void DystAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::Mi
 
         }
 
+        // Pre-Clip BOOST GAIN
+        spl0 *= boost_gain;
+        spl1 *= boost_gain;
+
+        // reset stereo image
+        if (*midside)
+        {
+           
+            mid = (spl0 + spl1);
+            side = (spl0 - spl1);
+            //side /= side_scale_factor;
+            spl0 = mid;
+            spl1 = side;
+        }
+
+
+        inputSampleL = spl0;
+        inputSampleR = spl1;
+        // Clipper - Courtesy of AirWindows:OnlyClip
+        if(*clip)
+        {
+
+            if (abs(spl0) > 4.0) spl0 = 4.0 * sign(spl0);
+            if (abs(spl1) > 4.0) spl1 = 4.0 * sign(spl1);
+     
+
+            if (wasPosClipL == true) { //current will be over
+                if (inputSampleL < lastSampleL) { //next one will NOT be over
+                    lastSampleL = ((refclip * hardness) + (inputSampleL * softness));
+                }
+                else { //still clipping, still chasing the target
+                    lastSampleL = ((lastSampleL * hardness) + (refclip * softness));
+                }
+            }
+            wasPosClipL = false;
+            if (inputSampleL > refclip) { //next will be over the true clip level. otherwise we directly use it
+                wasPosClipL = true; //set the clip flag
+                inputSampleL = ((refclip * hardness) + (lastSampleL * softness));
+            }
+
+            if (wasNegClipL == true) { //current will be -over
+                if (inputSampleL > lastSampleL) { //next one will NOT be -over
+                    lastSampleL = ((-refclip * hardness) + (inputSampleL * softness));
+                }
+                else { //still clipping, still chasing the target
+                    lastSampleL = ((lastSampleL * hardness) + (-refclip * softness));
+                }
+            }
+            wasNegClipL = false;
+            if (inputSampleL < -refclip) { //next will be -refclip.  otherwise we directly use it
+                wasNegClipL = true; //set the clip flag
+                inputSampleL = ((-refclip * hardness) + (lastSampleL * softness));
+            }
+
+            if (wasPosClipR == true) { //current will be over
+                if (inputSampleR < lastSampleR) { //next one will NOT be over
+                    lastSampleR = ((refclip * hardness) + (inputSampleR * softness));
+                }
+                else { //still clipping, still chasing the target
+                    lastSampleR = ((lastSampleR * hardness) + (refclip * softness));
+                }
+            }
+            wasPosClipR = false;
+            if (inputSampleR > refclip) { //next will be over the true clip level. otherwise we directly use it
+                wasPosClipR = true; //set the clip flag
+                inputSampleR = ((refclip * hardness) + (lastSampleR * softness));
+            }
+
+            if (wasNegClipR == true) { //current will be -over
+                if (inputSampleR > lastSampleR) { //next one will NOT be -over
+                    lastSampleR = ((-refclip * hardness) + (inputSampleR * softness));
+                }
+                else { //still clipping, still chasing the target
+                    lastSampleR = ((lastSampleR * hardness) + (-refclip * softness));
+                }
+            }
+            wasNegClipR = false;
+            if (inputSampleR < -refclip) { //next will be -refclip.  otherwise we directly use it
+                wasNegClipR = true; //set the clip flag
+                inputSampleR = ((-refclip * hardness) + (lastSampleR * softness));
+            }
+
+            spl0 = lastSampleL;
+            spl1 = lastSampleR;
+            lastSampleL = inputSampleL;
+            lastSampleR = inputSampleR;
+
+        }
+
 
         //  OUTPUT GAIN
         spl0 *= out_gain;
         spl1 *= out_gain;
 
-        // Clipper
-        if(*clip)
-        {
-            if (abs(spl0) > abs(sign(spl0)))
-            {
-                spl0 = sign(spl0);
-            }
-
-            if (abs(spl1) > abs(sign(spl1)))
-            {
-                spl1 = sign(spl1);
-            }
-        }
-
-
+       
 
         // OUTPUT TO CHANNELS
         left_channelData[i] = spl0;
@@ -363,7 +455,6 @@ void DystAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::Mi
     }
     dsp::AudioBlock<float> block(buffer);
     lowpassFilter.process(dsp::ProcessContextReplacing<float>(block));
-
    
 }
 

@@ -43,11 +43,13 @@ private:
     juce::Slider curveSlider;
     juce::Slider inputSlider;
     juce::Slider outputSlider;
+    juce::Slider boostSlider;
     juce::Slider timeSlider;
 
     juce::ToggleButton aggressiveToggle;
     juce::ToggleButton responseToggle;
     juce::ToggleButton clipToggle;
+    juce::ToggleButton midsideToggle;
 
     juce::ComboBox StyleCombo;
 
@@ -64,18 +66,21 @@ private:
     juce::Label rangeLabel;
     juce::Label inputLabel;
     juce::Label outputLabel;
+    juce::Label boostLabel;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> drive_attachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> range_attachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> curve_attachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> input_attachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> output_attachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> boost_attachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> time_attachment;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> dynamics_attachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> response_attachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> aggressive_attachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> clip_attachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> midside_attachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> style_attachment;
 
 

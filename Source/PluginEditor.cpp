@@ -32,6 +32,7 @@ DystAudioProcessorEditor::DystAudioProcessorEditor (DystAudioProcessor& p)
     driveSlider.setSkewFactor(.5f);
     curveSlider.setRange(0.f, 1.f, .01f);
     curveSlider.setValue(0.5f);
+    timeSlider.setSkewFactor(.2f);
 
 
     outputMeter.setTreeState(&audioProcessor.treeState);
@@ -42,6 +43,7 @@ DystAudioProcessorEditor::DystAudioProcessorEditor (DystAudioProcessor& p)
 
     inputSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
     outputSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
+    boostSlider.setSliderStyle(Slider::SliderStyle::LinearHorizontal);
 
 
     driveSlider.setSliderStyle(Slider::SliderStyle::Rotary);
@@ -52,6 +54,7 @@ DystAudioProcessorEditor::DystAudioProcessorEditor (DystAudioProcessor& p)
 
     inputSlider.setTextBoxStyle(Slider::TextBoxAbove, true, 40, 40);
     outputSlider.setTextBoxStyle(Slider::TextBoxAbove, true, 40, 40);
+    boostSlider.setTextBoxStyle(Slider::TextBoxAbove, true, 40, 40);
     inputSlider.setColour(Slider::textBoxTextColourId, Colours::orange.withLightness(.7f));
     outputSlider.setColour(Slider::textBoxTextColourId, Colours::orange.withLightness(.7f));
 
@@ -59,6 +62,7 @@ DystAudioProcessorEditor::DystAudioProcessorEditor (DystAudioProcessor& p)
     driveSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 40, 20);
     rangeSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 30, 20);
     curveSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 30, 20);
+    boostSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 30, 20);
 
     DystLookAndFeel.setThumbColour(Colours::orange.withSaturation(0.7f));
     driveLabel.setColour(Label::textColourId, Colours::orange.withBrightness(1.1f).withSaturation(.9f));
@@ -81,22 +85,26 @@ DystAudioProcessorEditor::DystAudioProcessorEditor (DystAudioProcessor& p)
     responseToggle.setButtonText("INVERSE");
     aggressiveToggle.setButtonText("DISTORT");
     clipToggle.setButtonText("Clip");
+    midsideToggle.setButtonText("M/S");
 
     driveLabel.setText("DRIVE", dontSendNotification);
     curveLabel.setText("curve", dontSendNotification);
     rangeLabel.setText("range", dontSendNotification);
     inputLabel.setText("input", dontSendNotification);
     outputLabel.setText("output", dontSendNotification);
+    boostLabel.setText("boost", dontSendNotification);
 
     driveLabel.setJustificationType(Justification::centred);
     curveLabel.setJustificationType(Justification::centredBottom);
     rangeLabel.setJustificationType(Justification::centredBottom);
     inputLabel.setJustificationType(Justification::centredBottom);
     outputLabel.setJustificationType(Justification::centredBottom);
+    boostLabel.setJustificationType(Justification::centredTop);
  
     responseToggle.setClickingTogglesState(true);
     aggressiveToggle.setClickingTogglesState(true);
     clipToggle.setClickingTogglesState(true);
+    midsideToggle.setClickingTogglesState(true);
     dynamicsButton.setClickingTogglesState(true);
 
     auto dynamicsLambda = [this]() 
@@ -129,7 +137,7 @@ DystAudioProcessorEditor::DystAudioProcessorEditor (DystAudioProcessor& p)
              rangeSlider.setColour(Slider::thumbColourId, Colours::slategrey);  
           }  
 
-          if (choiceArraya.getToggleState())
+          /*if (choiceArraya.getToggleState())
           {
               rangeSlider.setColour(Slider::thumbColourId, Colours::slategrey);
               driveSlider.setColour(Slider::thumbColourId, Colours::slategrey);
@@ -140,46 +148,46 @@ DystAudioProcessorEditor::DystAudioProcessorEditor (DystAudioProcessor& p)
           {
               driveSlider.setColour(Slider::thumbColourId, Colours::orange.withLightness(.7f));
               
-          }
+          }*/
 
     };
     
     dynamicsButton.onClick = dynamicsLambda;
     aggressiveToggle.onClick = dynamicsLambda;
 
-    auto createArrayaLambda = [this](int id, Button& b) {
+    auto createLambdas = [this](int id, Button& b) {
         return [this, id,&b]() {
             updateToggleState(b, StyleCombo, id);
 
-            if (choiceArraya.getToggleState()) {
+            /*if (choiceArraya.getToggleState()) {
                 rangeSlider.setColour(Slider::thumbColourId, Colours::slategrey);
                 driveSlider.setColour(Slider::thumbColourId, Colours::slategrey);
                 aggressiveToggle.setColour(ToggleButton::tickColourId, Colours::slategrey);
                 aggressiveToggle.setColour(ToggleButton::textColourId, Colours::slategrey);
-            }
-            else 
-            {
-                driveSlider.setColour(Slider::thumbColourId, Colours::orange.withLightness(.7f));
+            }*/
+            //else 
+            //{
+            driveSlider.setColour(Slider::thumbColourId, Colours::orange.withLightness(.7f));
 
-                if(dynamicsButton.getToggleState())
-                {
-                    aggressiveToggle.setColour(ToggleButton::tickColourId, Colours::orange.withBrightness(1.f).withSaturation(.4f).withHue(.1f));
-                    aggressiveToggle.setColour(ToggleButton::textColourId, Colours::orange.withBrightness(1.1f).withSaturation(.8f));
-                }
-             
-                if (aggressiveToggle.getToggleState() && dynamicsButton.getToggleState())
-                {
-                    rangeSlider.setColour(Slider::thumbColourId, Colours::orange.withLightness(.7f));
-                }
+            if(dynamicsButton.getToggleState())
+            {
+                aggressiveToggle.setColour(ToggleButton::tickColourId, Colours::orange.withBrightness(1.f).withSaturation(.4f).withHue(.1f));
+                aggressiveToggle.setColour(ToggleButton::textColourId, Colours::orange.withBrightness(1.1f).withSaturation(.8f));
             }
+             
+            if (aggressiveToggle.getToggleState() && dynamicsButton.getToggleState())
+            {
+                rangeSlider.setColour(Slider::thumbColourId, Colours::orange.withLightness(.7f));
+            }
+            //}
         };
     };
 
     // Create lambda functions with different ids
-    auto choiceLambda0 = createArrayaLambda(0,choiceSigmoid);
-    auto choiceLambda1 = createArrayaLambda(1,choiceArctan);
-    auto choiceLambda2 = createArrayaLambda(2,choiceHypertan);
-    auto choiceLambda3 = createArrayaLambda(3,choiceArraya);
+    auto choiceLambda0 = createLambdas(0,choiceSigmoid);
+    auto choiceLambda1 = createLambdas(1,choiceArctan);
+    auto choiceLambda2 = createLambdas(2,choiceHypertan);
+    auto choiceLambda3 = createLambdas(3,choiceArraya);
 
     choiceSigmoid.onClick = choiceLambda0;
     choiceArctan.onClick = choiceLambda1;
@@ -192,6 +200,7 @@ DystAudioProcessorEditor::DystAudioProcessorEditor (DystAudioProcessor& p)
     curve_attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "curve", curveSlider);
     input_attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "input_gain", inputSlider);
     output_attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "output_gain", outputSlider);
+    boost_attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "boost_gain", boostSlider);
     time_attachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.treeState, "time", timeSlider);
 
     style_attachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.treeState, "style", StyleCombo);
@@ -199,7 +208,8 @@ DystAudioProcessorEditor::DystAudioProcessorEditor (DystAudioProcessor& p)
     dynamics_attachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "dynamics", dynamicsButton);
     response_attachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "inverse", responseToggle);
     aggressive_attachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "aggressive", aggressiveToggle);
-    aggressive_attachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "clip", clipToggle);
+    clip_attachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "clip", clipToggle);
+    midside_attachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.treeState, "midside", midsideToggle);
 
     if (audioProcessor.savedState.isValid())
     {
@@ -221,11 +231,13 @@ DystAudioProcessorEditor::DystAudioProcessorEditor (DystAudioProcessor& p)
     addAndMakeVisible(driveSlider);
     addAndMakeVisible(curveSlider);
     addAndMakeVisible(timeSlider);
+    addAndMakeVisible(boostSlider);
 
     addAndMakeVisible(dynamicsButton);
     addAndMakeVisible(responseToggle);
     addAndMakeVisible(aggressiveToggle);
     addAndMakeVisible(clipToggle);
+    addAndMakeVisible(midsideToggle);
 
     addAndMakeVisible(choiceArctan);
     addAndMakeVisible(choiceHypertan);
@@ -238,6 +250,7 @@ DystAudioProcessorEditor::DystAudioProcessorEditor (DystAudioProcessor& p)
     addAndMakeVisible(rangeLabel);
     addAndMakeVisible(inputLabel);
     addAndMakeVisible(outputLabel);
+    addAndMakeVisible(boostLabel);
 }
 
 DystAudioProcessorEditor::~DystAudioProcessorEditor()
@@ -284,7 +297,8 @@ void DystAudioProcessorEditor::resized()
     outputMeter.setBounds(bounds.removeFromTop(40).reduced(10,5));
     auto low_bounds = bounds.removeFromBottom(20).reduced(20, 0);
     clipToggle.setBounds(low_bounds.removeFromRight(50));
-    timeSlider.setBounds(low_bounds);
+    midsideToggle.setBounds(low_bounds.removeFromLeft(50));
+    boostSlider.setBounds(low_bounds);
     
 
     dynamicsButton.setPaintingIsUnclipped(true);
@@ -294,7 +308,10 @@ void DystAudioProcessorEditor::resized()
     responseToggle.setPaintingIsUnclipped(true);
     aggressiveToggle.setPaintingIsUnclipped(true);
     clipToggle.setPaintingIsUnclipped(true);
+    midsideToggle.setPaintingIsUnclipped(true);
     curveSlider.setPaintingIsUnclipped(true);
+    boostSlider.setPaintingIsUnclipped(true);
+    boostLabel.setPaintingIsUnclipped(true);
 
     timeLabel.setPaintingIsUnclipped(true);
     styleLabel.setPaintingIsUnclipped(true);
@@ -303,6 +320,7 @@ void DystAudioProcessorEditor::resized()
     rangeLabel.setPaintingIsUnclipped(true);
     inputLabel.setPaintingIsUnclipped(true);
     outputLabel.setPaintingIsUnclipped(true);
+    boostLabel.setPaintingIsUnclipped(true);
 
     auto vertical_slider_bounds = bounds.removeFromLeft(fullWidth/14);
 
@@ -311,6 +329,8 @@ void DystAudioProcessorEditor::resized()
     vertical_slider_bounds = bounds.removeFromRight(30);
     vertical_slider_bounds.reduce(0, 40);
     outputSlider.setBounds(vertical_slider_bounds.expanded(10,0));
+
+    timeSlider.setBounds(bounds.removeFromTop(bounds.getHeight() / 15));
 
     auto distortion_section = bounds.removeFromTop(bounds.getHeight() / 3).translated(0,-fullHeight/15);
     distortion_section.reduce(10,distortion_section.getHeight()/3);
@@ -334,13 +354,14 @@ void DystAudioProcessorEditor::resized()
         .translated(0, -20);
 
     responseToggle.setBounds(dynamics_row.removeFromLeft(dynamics_row.getWidth() * .7f).translated(dynamics_row.getWidth()*.05f, 0));
-    aggressiveToggle.setBounds(dynamics_row);
+    aggressiveToggle.setBounds(dynamics_row.translated(10,0));
    
     driveLabel.setBounds(driveSlider.getBounds().removeFromBottom(driveSlider.getHeight()/3));
     curveLabel.setBounds(curveSlider.getBounds().removeFromBottom(curveSlider.getHeight()/5));
     rangeLabel.setBounds(rangeSlider.getBounds().removeFromBottom(rangeSlider.getHeight()/5));
     inputLabel.setBounds(inputSlider.getBounds().removeFromBottom(inputSlider.getHeight()/7).translated(0,fullHeight/15).expanded(10,0));
     outputLabel.setBounds(outputSlider.getBounds().removeFromBottom(outputSlider.getHeight()/7).translated(-10,fullHeight/15).expanded(10, 0));
+    boostLabel.setBounds(boostSlider.getBounds().translated(0,-20));
 
     //driveSlider.setBounds(bottom_section.removeFromLeft(bottom_section.getWidth() / 3).reduced(10));
     //rangeSlider.setBounds(bottom_section.removeFromRight(bottom_section.getWidth() / 2).reduced(10));
