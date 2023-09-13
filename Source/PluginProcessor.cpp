@@ -210,13 +210,20 @@ void DystAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::Mi
   
     
     auto left_channelData = buffer.getWritePointer(0);
-    auto right_channelData = buffer.getWritePointer(1);
+    auto right_channelData = buffer.getWritePointer(0);
+
+    if (totalNumInputChannels > 1)
+    {
+        right_channelData = buffer.getWritePointer(1);
+    }
 
     for (int i = 0; i < buffer.getNumSamples(); i++)
     {
             
         spl0 = left_channelData[i];
         spl1 = right_channelData[i];
+      
+       
 
         if (*midside)
         {
