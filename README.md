@@ -1,6 +1,22 @@
 # Dyst
 Experimental Dynamic Distortion Plugin
 
+How to Use The Plugin (Beta Version Demo): 
+https://www.youtube.com/watch?v=7VkOB03AG20
+
+How I Made This Plugin: 
+https://www.youtube.com/watch?v=ebLoEOWpgBo
+
+My Other Stuff:
+https://linktr.ee/aarr0w
+
+It's Open Source, Check Out The Code:
+https://github.com/Aarr0w/Dyst
+
+
+
+A huge shoutout to jorahzo for making the Mac Builds! 
+
 MIT License
 
 Copyright (c) 2023 Aaron Walker
@@ -29,4 +45,3 @@ This project uses the "OnlyClip" algorithm, which is licensed under the MIT Lice
 - Algorithm: OnlyClip
 - Author: AirWindows
 - GitHub Repository: https://github.com/airwindows/airwindows 
-

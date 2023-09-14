@@ -212,6 +212,7 @@ void DystAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::Mi
     auto left_channelData = buffer.getWritePointer(0);
     auto right_channelData = buffer.getWritePointer(0);
 
+    //weird re-pointing is to dodge nagging from Logic AU verification
     if (totalNumInputChannels > 1)
     {
         right_channelData = buffer.getWritePointer(1);
