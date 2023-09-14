@@ -34,7 +34,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout DystAudioProcessor::createPa
 
     params.add(std::make_unique<juce::AudioParameterInt>("time", "Time", 50,500,60));
 
-    params.add(std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.1f, 6.f, 2.f));
+    params.add(std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.1f, 6.f, 2.7f));
     params.add(std::make_unique<juce::AudioParameterFloat>("range", "Range", 0.1f, 6.f, 1.f));
     params.add(std::make_unique<juce::AudioParameterFloat>("curve", "Curve", 0.f, 1.f, 0.01f));
     params.add(std::make_unique<juce::AudioParameterFloat>("input_gain", "Input", -20.f, 12.f, 0.f));
