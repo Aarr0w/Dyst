@@ -52,8 +52,8 @@ DystAudioProcessorEditor::DystAudioProcessorEditor (DystAudioProcessor& p)
 
     DystLookAndFeel.setColour(Slider::thumbColourId, Colours::orange.withSaturation(0.7f));
 
-    inputSlider.setTextBoxStyle(Slider::TextBoxAbove, true, 40, 40);
-    outputSlider.setTextBoxStyle(Slider::TextBoxAbove, true, 40, 40);
+    inputSlider.setTextBoxStyle(Slider::TextBoxAbove, false, 40, 40);
+    outputSlider.setTextBoxStyle(Slider::TextBoxAbove, false, 40, 40);
     boostSlider.setTextBoxStyle(Slider::TextBoxAbove, true, 40, 40);
     inputSlider.setColour(Slider::textBoxTextColourId, Colours::orange.withLightness(.7f));
     outputSlider.setColour(Slider::textBoxTextColourId, Colours::orange.withLightness(.7f));
