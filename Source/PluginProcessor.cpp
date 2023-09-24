@@ -32,24 +32,24 @@ juce::AudioProcessorValueTreeState::ParameterLayout DystAudioProcessor::createPa
 {
     juce::AudioProcessorValueTreeState::ParameterLayout params;
 
-    params.add(std::make_unique<juce::AudioParameterInt>("time", "Time", 50,500,60));
+    params.add(std::make_unique<juce::AudioParameterInt>(ParameterID{ "time", 2 }, "Time", 50, 500, 60));
 
-    params.add(std::make_unique<juce::AudioParameterFloat>("drive", "Drive", 0.1f, 6.f, 2.7f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("range", "Range", 0.1f, 6.f, 1.f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("curve", "Curve", 0.f, 1.f, 0.01f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("input_gain", "Input", -20.f, 12.f, 0.f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("output_gain", "Output", -20.f, 12.f, 0.f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("boost_gain", "Boost", 0.f, 12.f, 0.f));
-    params.add(std::make_unique<juce::AudioParameterFloat>("threshhold", "Threshhold", -20.f, 0.f, 0.1f));
+    params.add(std::make_unique<juce::AudioParameterFloat>(ParameterID{"drive", 2}, "Drive", 0.1f, 6.f, 2.7f));
+    params.add(std::make_unique<juce::AudioParameterFloat>(ParameterID{"range", 2}, "Range", 0.1f, 6.f, 1.f));
+    params.add(std::make_unique<juce::AudioParameterFloat>(ParameterID{"curve", 2}, "Curve", 0.f, 1.f, 0.01f));
+    params.add(std::make_unique<juce::AudioParameterFloat>(ParameterID{"input_gain", 2}, "Input", -20.f, 12.f, 0.f));
+    params.add(std::make_unique<juce::AudioParameterFloat>(ParameterID{"output_gain", 2}, "Output", -20.f, 12.f, 0.f));
+    params.add(std::make_unique<juce::AudioParameterFloat>(ParameterID{"boost_gain", 2}, "Boost", 0.f, 12.f, 0.f));
+    params.add(std::make_unique<juce::AudioParameterFloat>(ParameterID{ "threshhold", 2 }, "Threshhold", -20.f, 0.f, 0.1f));
 
-    params.add(std::make_unique<juce::AudioParameterBool>("dynamics", "Dynamics", true));
-    params.add(std::make_unique<juce::AudioParameterBool>("aggressive", "Aggressive", false));
-    params.add(std::make_unique<juce::AudioParameterBool>("inverse", "Inverse", true)); //Direct or Inverse
-    params.add(std::make_unique<juce::AudioParameterBool>("clip", "Clip", false)); 
-    params.add(std::make_unique<juce::AudioParameterBool>("midside", "MidSide", false)); 
+    params.add(std::make_unique<juce::AudioParameterBool>(ParameterID{ "dynamics", 2 }, "Dynamics", true));
+    params.add(std::make_unique<juce::AudioParameterBool>(ParameterID{ "aggressive",2 }, "Aggressive", false));
+    params.add(std::make_unique<juce::AudioParameterBool>(ParameterID{ "inverse", 2 }, "Inverse", true)); //Direct or Inverse
+    params.add(std::make_unique<juce::AudioParameterBool>(ParameterID{ "clip", 2 }, "Clip", false));
+    params.add(std::make_unique<juce::AudioParameterBool>(ParameterID{ "midside",2 }, "MidSide", false));
 
     //the strings are actually added manually in editor constructor
-    params.add(std::make_unique<juce::AudioParameterChoice>("style", "Style", juce::Array<juce::String>{ "Sigmoid", "ArcTan", "HyperTan", "Arraya" }, 0));
+    params.add(std::make_unique<juce::AudioParameterChoice>(ParameterID{ "style",2 }, "Style", juce::Array<juce::String>{ "Sigmoid", "ArcTan", "HyperTan", "Arraya" }, 0));
     
 
     return params;
