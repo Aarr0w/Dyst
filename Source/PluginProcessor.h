@@ -104,8 +104,7 @@ private:
     std::atomic<float>* aggressive = treeState.getRawParameterValue("aggressive");
     std::atomic<float>* curve = treeState.getRawParameterValue("curve");
     std::atomic<float>* inverse = treeState.getRawParameterValue("inverse");
-
-    int   rms_size = floor((*rms_time / 1000) * srate);
+    
     float in_gain = Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("input_gain")));
     float out_gain = Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("output_gain")));
     float boost_gain = Decibels::decibelsToGain(static_cast<float>(*treeState.getRawParameterValue("boost_gain")));
@@ -139,7 +138,9 @@ private:
     int rms_counter;
     int low_counter;
     int srate;
-
+    
+    int rms_size;
+    
     std::vector<float> rmsList;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DystAudioProcessor)
 };

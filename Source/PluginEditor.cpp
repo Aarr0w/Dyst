@@ -217,11 +217,11 @@ DystAudioProcessorEditor::DystAudioProcessorEditor (DystAudioProcessor& p)
         //Logger::outputDebugString("state replaced_style combo value: " + to_string(StyleCombo.getSelectedItemIndex()));
         switch (StyleCombo.getSelectedItemIndex())
         {
-            case 0: choiceSigmoid.setToggleState(true, false); break;
-            case 1: choiceArctan.setToggleState(true, false); break;
-            case 2: choiceHypertan.setToggleState(true, false); break;
-            case 3: choiceArraya.setToggleState(true, false); break;
-            default: choiceSigmoid.setToggleState(true, false); break;
+            case 0: choiceSigmoid.setToggleState(true, NotificationType::dontSendNotification); break;
+            case 1: choiceArctan.setToggleState(true, NotificationType::dontSendNotification); break;
+            case 2: choiceHypertan.setToggleState(true, NotificationType::dontSendNotification); break;
+            case 3: choiceArraya.setToggleState(true, NotificationType::dontSendNotification); break;
+            default: choiceSigmoid.setToggleState(true, NotificationType::dontSendNotification); break;
         }
     }
 
@@ -262,7 +262,7 @@ void DystAudioProcessorEditor::updateToggleState(juce::Button& button,ComboBox& 
     //auto state = button.getToggleState();
 
     //juce::String stateString = state ? "ON" : "OFF";
-    button.setToggleState(true, false);
+    button.setToggleState(true, NotificationType::dontSendNotification);
     cb.setSelectedItemIndex(index);
 
 }

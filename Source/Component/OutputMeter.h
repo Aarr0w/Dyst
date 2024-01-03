@@ -75,7 +75,7 @@ namespace Gui
 			meterBar.setBounds(getLocalBounds());
 		}
 
-		Gui::HorizontalMeter::~HorizontalMeter()
+        ~HorizontalMeter()
 		{
 			setLookAndFeel(nullptr);
 		}
